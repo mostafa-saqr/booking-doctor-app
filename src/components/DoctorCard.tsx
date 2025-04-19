@@ -14,10 +14,26 @@ import DoctorBooking from './DoctorBooking';
 import { Doctor } from '../services/mockData';
 
 interface DoctorCardProps extends Omit<Doctor, 'id'> {
+  id: number;
   onBookAppointment: () => void;
+  showBookingButton?: boolean;
+  bookingInfo?: {
+    date: string;
+    time: string;
+    onCancel: () => void;
+  };
 }
 
-const DoctorCard = ({ name, specialty, availability, location, onBookAppointment }: DoctorCardProps) => {
+const DoctorCard = ({ 
+  id,
+  name, 
+  specialty, 
+  availability, 
+  location, 
+  onBookAppointment,
+  showBookingButton = true,
+  bookingInfo 
+}: DoctorCardProps) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleBookAppointment = () => {
@@ -62,13 +78,35 @@ const DoctorCard = ({ name, specialty, availability, location, onBookAppointment
               {location}
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={handleBookAppointment}
-          >
-            Book Appointment
-          </Button>
+          {bookingInfo && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Booking Date: {bookingInfo.date}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Time: {bookingInfo.time}
+              </Typography>
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                fullWidth
+                sx={{ mt: 1 }}
+                onClick={bookingInfo.onCancel}
+              >
+                Cancel Appointment
+              </Button>
+            </Box>
+          )}
+          {showBookingButton && (
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleBookAppointment}
+            >
+              Book Appointment
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -78,7 +116,7 @@ const DoctorCard = ({ name, specialty, availability, location, onBookAppointment
         onClose={handleCloseDrawer}
       >
         <DoctorBooking
-          doctor={{ id: 0, name, specialty, availability, location }}
+          doctor={{ id, name, specialty, availability, location }}
           onClose={handleCloseDrawer}
         />
       </Drawer>

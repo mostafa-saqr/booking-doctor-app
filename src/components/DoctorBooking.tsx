@@ -4,7 +4,6 @@ import {
   Typography,
   IconButton,
   Divider,
-  Grid,
   Button,
   Stack,
   Snackbar,
@@ -12,6 +11,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Doctor } from '../services/mockData';
+import { useBooking } from '../context/BookingContext';
 
 interface DoctorBookingProps {
   doctor: Doctor;
@@ -37,6 +37,8 @@ const timeSlots = [
 const DoctorBooking = ({ doctor, onClose }: DoctorBookingProps) => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const { addBooking, isTimeSlotBooked } = useBooking();
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time === selectedTime ? null : time);
@@ -45,8 +47,14 @@ const DoctorBooking = ({ doctor, onClose }: DoctorBookingProps) => {
   const handleConfirm = () => {
     if (!selectedTime) return;
     
-    // Here you would typically make an API call to book the appointment
-    console.log('Booking confirmed for:', selectedTime);
+    // Check if this specific doctor already has a booking at this time
+    if (isTimeSlotBooked(doctor.id, selectedTime)) {
+      setShowError(true);
+      return;
+    }
+
+    // Add the booking to the context
+    addBooking(doctor, selectedTime);
     setShowSuccess(true);
     setTimeout(() => {
       onClose();
@@ -152,6 +160,18 @@ const DoctorBooking = ({ doctor, onClose }: DoctorBookingProps) => {
       >
         <Alert severity="success" sx={{ width: '100%' }}>
           Appointment booked successfully for {selectedTime}!
+        </Alert>
+      </Snackbar>
+
+      {/* Error Message */}
+      <Snackbar
+        open={showError}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        onClose={() => setShowError(false)}
+      >
+        <Alert severity="error" sx={{ width: '100%' }}>
+          You already have an appointment with {doctor.name} at {selectedTime}. Please choose a different time.
         </Alert>
       </Snackbar>
     </>
