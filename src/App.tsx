@@ -1,25 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CssBaseline, CircularProgress, Box } from '@mui/material';
+import Header from './components/Header';
+
+// Lazy load the pages
+const DoctorsList = lazy(() => import('./pages/DoctorsList'));
+const AppointmentsSummary = lazy(() => import('./pages/AppointmentsSummary'));
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <CssBaseline />
+      <Header />
+      <Suspense 
+        fallback={
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: '100vh' 
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<DoctorsList />} />
+          <Route path="/appointments" element={<AppointmentsSummary />} />
+        </Routes>
+      </Suspense>
+    </Router>
   );
 }
 
